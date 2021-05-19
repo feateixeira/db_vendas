@@ -3,72 +3,69 @@ create schema if not exists `bd_vendas` default character set utf8;
 use `bd_vendas`;
 
 
-create table if not exists `bd_vendas` . `tb_clientes` (
-	`id` int not null auto_increment,
-    `nome` varchar(50) null,
-    primary key (`id`)
+create table if not exists `bd_vendas` . `tb_cliente` (
+	`id_cliente` int not null auto_increment,
+    `nome` varchar(50),
+    primary key (`id_cliente`)
 ) engine = InnoDB;
 
-create table if not exists `bd_vendas` . `tb_endereco` (
-	`id_endereco` int not null ,
-    `id` int not null,
-    `rua` varchar(50) not null,
-    `cidade` varchar(50) not null,
-    `cep` varchar(50) not null,
-    `pais` varchar(50) not null,
-    `telefone` varchar(50) not null,
-    `cliente_id` int not null,
-    primary key (`id_endereco`),
-    index `fk_tb_endereco_tb_clientes_idx` (`cliente_id` ASC),
-    constraint `fk_tb_endereco_tb_clientes`
-		foreign key (`cliente_id`)
-        references `bd_vendas`.`tb_clientes` (`id`)
-        on delete no action
-        on update no action
-) engine = InnoDB;
-
-create table if not exists `bd_vendas` . `tb_pedidos` (
-	`numero_pedido` int not null ,
-    `id` int not null,
-    `data_pedido` date not null,
-    `data_despacho` date not null,
-    `cliente_id` int not null,
+create table if not exists `bd_vendas` . `tb_pedido` (
+	`numero_pedido` int not null auto_increment,
+    `data_pedido` date,
+    `data_despacho` date,
+    `id_cliente` int,
     primary key (`numero_pedido`),
-    index `fk_tb_pedidos_tb_clientes_idx` (`cliente_id` ASC),
-    constraint `fk_tb_pedidos_tb_clientes`
-		foreign key (`cliente_id`)
-        references `bd_vendas` . `tb_clientes` (`id`)
+    index fk_pedido_cliente1_idx (`id_cliente` ASC),
+    constraint `fk_pedido_cliente1`
+		foreign key(`id_cliente`)
+        references `bd_vendas`.`tb_cliente` (`id_cliente`)
         on delete no action
         on update no action
 ) engine = InnoDB ;
 
-create table if not exists `bd_vendas`. `tb_itens` (
-	`numero_pedido` int not null,
-    `numero_produto` int not null ,
-    `numero_iten` int not null,
-    `preco_unidade` double not null,
-    `quantidade` int not null,
-    `pedido_id` int not null,
-    primary key (`numero_pedido`),
-    index `fk_tb_itens_tb_pedidos_idx` (`pedido_id` ASC),
-    constraint `fk_tb_itens_tb_pedidos`
-    foreign key (`pedido_id`)
-    references `bd_vendas` . `tb_pedidos` (`numero_pedido`)
-    on delete no action
-    on update no action
+create table if not exists `bd_vendas` . `tb_endereco` (
+	`id_endereco` int not null auto_increment,
+    `rua` varchar(30),
+    `cidade` varchar(50),
+    `cep` varchar(10),
+    `pais` varchar(50),
+    `telefone` varchar(14),
+    `id_cliente` int,
+    primary key (`id_endereco`),
+    index fk_endereco_cliente1_idx (`id_cliente` ASC),
+    constraint `fk_endereco_cliente`
+		foreign key (`id_cliente`)
+        references `bd_vendas`.`tb_cliente` (`id_cliente`)
+        on delete no action
+        on update no action
 ) engine = InnoDB;
 
 create table if not exists `bd_vendas` . `tb_produto` (
-	`numero_produto` int not null,
-    `nome_produto` char(50) not null,
-    `quantidade_unidade` int not null,
-    `preco_unidade` double not null,
-    `produto_id` int not null,
-    primary key (`numero_produto`),
-    index `fk_tb_produto_tb_itens_idx` (`produto_id` ASC),
-    constraint `fk_tb_produtos_tb_itens1`
-    foreign key (`nome_produto`)
-    references `bd_vendas` . `tb_itens` (`numero_pedido`)
-    on delete no action
-    on update no action
+	`numero_produto` int not null auto_increment,
+    `nome_produto` char(100),
+    `quantidade_unidade` int,
+    `preco_unidade` decimal(15,2),
+    primary key (`numero_produto`)
 ) engine = InnoDB;
+
+create table if not exists `bd_vendas`. `tb_itens` (
+    `numero_item` int not null,
+    `preco_unidade` decimal(15,2) not null,
+    `quantidade` int not null,
+    `numero_pedido` int not null,
+    `numero_produto` int not null ,
+    primary key (`numero_item`),
+    index fk_itens_pedido1_idx (`numero_pedido` ASC),
+    index fk_itens_produto1_idx (`numero_produto` ASC),
+    constraint `fk_itens_pedido1`
+		foreign key (`numero_pedido`)
+		references `bd_vendas`.`tb_pedido` (`numero_pedido`)
+		on delete no action
+		on update no action,
+    constraint `fk_itens_produto1`
+		foreign key (`numero_produto`)
+		references `bd_vendas`.`tb_produto` (`numero_produto`)
+		on delete no action
+		on update no action
+) engine = InnoDB;
+
